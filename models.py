@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 
 from matplotlib import pyplot as plt
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from matterport_test import getArgs
 from SuperGluePretrainedNetwork.models.matching import Matching
 from SuperGluePretrainedNetwork.models.superpoint import SuperPoint
@@ -86,24 +87,47 @@ class MidManager(object):
         self.superpoint = SuperPoint(self.superpoint_config).to(device)
         self.device = device
 
-    def getPotentialGoalKeypoints(self, obs):
+    @torch.no_grad()
+    def getPotentialGoal(self, obs, graph=None):
         # superpoint code borrowed from here: https://github.com/magicleap/SuperGluePretrainedNetwork
-        breakpoint()
         data = {'image0': torch.from_numpy(obs / 255.).float()[None, None].to(self.device)}
         pred = self.superpoint({'image': data['image0']})
         kpts = pred['keypoints'][0]
         scores = pred['scores'][0]
         descripts = pred['descriptors'][0]
 
+        #only take the ones with scores above the mean; scores tell how "point-ish" a keypoint is
+        avg = torch.mean(scores)
+        valid = scores>avg
+        mkpts = kpts[valid]
 
-    def narrowDownKeypoints(self, obs, keypoints):
-        breakpoint()
-        # cluster the points into objects based on distance??? kmeans???
-        # in theory the
+        if graph is None: #or change this to if goal is not found in graph?
+            #find portion of image with highest density of dots (for now)
+            #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
+            clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=20)
+            clusters = clustering.fit_predict(mkpts)
+            largest_cluster = max(set(clusters), key=list(clusters).count)
+            print('largest cluster:', largest_cluster)
+            # plt.imshow(obs)
+            # for i in range(max(clusters)):
+            #     inds=[clusters==i]
+            #     print(sum(sum(inds)))
+            #     plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
+            # plt.show()
+            points = mkpts[clusters==largest_cluster]
+            min_coords = torch.min(points, axis=0)[0].int()
+            max_coords = torch.max(points, axis=0)[0].int()
+            goal_img = obs[min_coords[1]:max_coords[1],min_coords[0]:max_coords[0]]
+            # plt.imshow(goal_img)
+            # plt.show()
+            return goal_img
+        else:
+            return None
+            #TODO: figure out how to incorporate graph knowledge of goal location, robot location, and image
+            # learned from the videos???
 
     def step(self, obs):
-        potentialGoalKeypoints = self.getPotentialGoalKeypoints(obs)
-        goalimg = self.narrowDownKeypoints(obs, potentialGoalKeypoints)
+        goalimg = self.getPotentialGoal(obs)
         return goalimg
 
 if __name__ == '__main__':
@@ -114,8 +138,8 @@ if __name__ == '__main__':
 
     #test mid level manager
     midMan = MidManager(args, device)
-    mangoalimg = midMan.step(testimg)
-    plt.imshow(mangoalimg)
+    goalimg = midMan.step(testimg)
+    plt.imshow(goalimg)
     plt.show()
 
     #test worker
