@@ -25,5 +25,5 @@ def getArgs():
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    env = habitat.Env(config=habitat.get_config("/home/"))
+    env = habitat.Env(config=habitat.get_config("/home/faith"))
     print('finished')
