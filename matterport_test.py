@@ -1,7 +1,9 @@
 import torch
 import argparse
+import habitat
 
-
+# from habitat.sims.habitat_simulator.actions import HabitatSimActions
+import cv2
 
 def getArgs():
     parser = argparse.ArgumentParser()
@@ -21,4 +23,6 @@ def getArgs():
 
 
 if __name__ == '__main__':
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    print('finished')

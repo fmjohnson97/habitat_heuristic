@@ -136,6 +136,9 @@ if __name__ == '__main__':
     testimg = cv2.cvtColor(cv2.imread('test.png'), cv2.COLOR_BGR2GRAY)
     goalimg = cv2.cvtColor(cv2.imread('goal.png'), cv2.COLOR_BGR2GRAY)
 
+    #test upper level manager
+
+
     #test mid level manager
     midMan = MidManager(args, device)
     goalimg = midMan.step(testimg)
