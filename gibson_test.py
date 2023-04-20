@@ -1,8 +1,10 @@
 import torch
 import argparse
 import habitat
+import habitat_sim
 import cv2
 import random
+import numpy as np
 
 from habitat.sims.habitat_simulator.actions import HabitatSimActions
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
@@ -54,5 +56,20 @@ if __name__ == '__main__':
                     "physics_config_file": "data/default.physics_config.json",
                     "enable_physics": True}
     habitat_cfg = make_cfg(sim_settings)
-    env = habitat.Simulator(habitat_cfg)
+    sim = habitat.Simulator(habitat_cfg)
+    # initialize an agent
+    agent = sim.initialize_agent(sim_settings["default_agent"])
+    # Set agent state
+    agent_state = habitat_sim.AgentState()
+    #TODO: change this to a random place in the environment bounds
+    agent_state.position = np.array([-0.6, 0.0, 0.0])  # in world space
+    agent.set_state(agent_state)
+    # Get agent state
+    agent_state = agent.get_state()
+    print("agent_state: position", agent_state.position, "rotation", agent_state.rotation)
+    # obtain the default, discrete actions that an agent can perform
+    # default action space contains 3 actions: move_forward, turn_left, and turn_right
+    action_names = list(habitat_cfg.agents[sim_settings["default_agent"]].action_space.keys())
+    print("Discrete action space: ", action_names)
+
     print('finished')
