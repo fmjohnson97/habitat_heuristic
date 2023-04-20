@@ -6,6 +6,7 @@ import cv2
 import random
 import numpy as np
 
+from matplotlib import pyplot as plt
 from habitat.sims.habitat_simulator.actions import HabitatSimActions
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
 from habitat.utils.visualizations import maps
@@ -60,9 +61,11 @@ if __name__ == '__main__':
                     "equirect_semantic_sensor": False,
                     "seed": 1,
                     "physics_config_file": "data/default.physics_config.json",
-                    "enable_physics": False}
+                    "enable_physics": False,
+                    "allow_sliding":False}
     habitat_cfg = make_cfg(sim_settings)
     sim = habitat_sim.Simulator(habitat_cfg)
+    sim.pathfinder.load_nav_mesh(sim_settings['scene'].split('.glb')[0]+'.navmesh')
     # get sim area stats and topdown map
     print("Navmesh area=", str(sim.pathfinder.navigable_area))
     print('Bounds=', str(sim.pathfinder.get_bounds()))
@@ -103,5 +106,21 @@ if __name__ == '__main__':
     print("distance to random point:", sim.pathfinder.distance_to_closest_obstacle(nav_point, args.max_search_radius))
     
     #get shortest path between 2 points
+    nav_point2 = sim.pathfinder.get_random_navigable_point()
+    path = habitat_sim.ShortestPath()
+    path.requested_start = nav_point
+    path.requested_end = nav_point2
+    found_path = sim.pathfinder.find_path(path)
+    print("found path between",nav_point,'and',nav_point2,'?',found_path)
+    geodesic_distance = path.geodesic_distance
+    print('path distance',geodesic_distance)
+    path_points = np.stack(path.points)
+    # matplotlib doesn't work in here for some reason???
+    print('points:',path_points)
+    # plt.plot(path_points[:,0],path_points[:,2])
+    # plt.show()
+
+    ''' BIG BIG NOTE!!! MIGHT HAVE TO CHECK TO SEE IF A COLLISION OCCURRED MANUALLY IN THE CODE!!!'''
+    
     print('finished')
     
