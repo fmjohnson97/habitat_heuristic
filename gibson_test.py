@@ -54,5 +54,5 @@ if __name__ == '__main__':
                     "physics_config_file": "data/default.physics_config.json",
                     "enable_physics": True}
     habitat_cfg = make_cfg(sim_settings)
-    env = habitat.Env(config=habitat_cfg)
+    env = habitat.Simulator(habitat_cfg)
     print('finished')
