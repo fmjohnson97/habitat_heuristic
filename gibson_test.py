@@ -56,7 +56,7 @@ if __name__ == '__main__':
                     "physics_config_file": "data/default.physics_config.json",
                     "enable_physics": True}
     habitat_cfg = make_cfg(sim_settings)
-    sim = habitat.Simulator(habitat_cfg)
+    sim = habitat_sim.Simulator(habitat_cfg)
     # initialize an agent
     agent = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
