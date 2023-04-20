@@ -23,7 +23,10 @@ def getArgs():
     parser.add_argument('--keypoint_threshold', type=float, default=0.005, help='SuperPoint keypoint detector confidence threshold')
     parser.add_argument('--x_size', type=int, default=640, help='x dimension of the image')
     parser.add_argument('--y_size', type=int, default=480, help='y dimension of the image')
-
+    
+    # Habitat arguments
+    
+    
     return parser.parse_args()
 
 
@@ -33,16 +36,16 @@ if __name__ == '__main__':
     test_scene_files = get_split_files(split='test',env='gibson')
     test_scene = random.choice(list(test_scene_files['all']))
     sim_settings = {"scene_dataset_config_file": "default",
-                    "scene":test_scene,
+                    "scene":'/home/faith/GitRepos/habitat/gibson/'+test_scene,
                     "default_agent":0,
                     "sensor_height":1.5,
                     "width":640,
                     "height":480,
-                    "hfov": 90,
+                    "hfov": 120,
                     "zfar": 1000.0,
                     "color_sensor": True,
                     "semantic_sensor": False,
-                    "depth_sensor": False,
+                    "depth_sensor": True,
                     "ortho_rgba_sensor": False,
                     "ortho_depth_sensor": False,
                     "ortho_semantic_sensor": False,
@@ -54,9 +57,10 @@ if __name__ == '__main__':
                     "equirect_semantic_sensor": False,
                     "seed": 1,
                     "physics_config_file": "data/default.physics_config.json",
-                    "enable_physics": True}
+                    "enable_physics": False}
     habitat_cfg = make_cfg(sim_settings)
     sim = habitat_sim.Simulator(habitat_cfg)
+    
     # initialize an agent
     agent = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
@@ -64,6 +68,7 @@ if __name__ == '__main__':
     #TODO: change this to a random place in the environment bounds
     agent_state.position = np.array([-0.6, 0.0, 0.0])  # in world space
     agent.set_state(agent_state)
+    
     # Get agent state
     agent_state = agent.get_state()
     print("agent_state: position", agent_state.position, "rotation", agent_state.rotation)
@@ -71,5 +76,15 @@ if __name__ == '__main__':
     # default action space contains 3 actions: move_forward, turn_left, and turn_right
     action_names = list(habitat_cfg.agents[sim_settings["default_agent"]].action_space.keys())
     print("Discrete action space: ", action_names)
+
+    # max_frames = 10
+    # for mf in range(max_frames):
+    #     action = random.choice(action_names)
+    #     print('Action:',action)
+    #     obs = sim.step(action)
+    #     rgb = obs['color_sensor']
+    #     depth = obs['depth_sensor']
+    #     cv2.imshow('',rgb)
+    #     cv2.waitKey(500)
 
     print('finished')

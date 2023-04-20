@@ -55,18 +55,18 @@ class Worker(object):
         #check if should turn left or right or not
         if abs(goal_center[0]-self.x_size//2)> self.x_threshold:
             if goal_center[0]-self.x_size//2 < 0:
-                moves.append('turn left')
+                moves.append('turn_left')
             else:
-                moves.append('turn right')
+                moves.append('turn_right')
 
         #TODO: check this logic!!! stop condition could be weird. what if item is on ground? should really checkf or depth instead.
         #maybe pass in obs???
 
         #check if should move forward or stop
         if goal_center[1]-self.y_size//2 > self.y_threshold:
-            moves.append('stop')
+            moves.append('stop') #TODO: should this just be an empty string instead?
         else:
-            moves.append('forward')
+            moves.append('move_forward')
 
         return moves
 
