@@ -11,6 +11,7 @@ from habitat_sim.utils.settings import default_sim_settings, make_cfg
 from habitat.utils.visualizations import maps
 
 from habitat_utils import get_split_files
+from models import Worker, MidManager
 
 def getArgs():
     parser = argparse.ArgumentParser()
@@ -36,6 +37,8 @@ def getArgs():
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     args = getArgs()
+
+    # set up the environment
     test_scene_files = get_split_files(split='test',env='gibson')
     test_scene = random.choice(list(test_scene_files['all']))
     sim_settings = {"scene_dataset_config_file": "default",
@@ -64,25 +67,46 @@ if __name__ == '__main__':
     habitat_cfg = make_cfg(sim_settings)
     sim = habitat_sim.Simulator(habitat_cfg)
     # get sim area stats and topdown map
-    print("Navmesh area=", str(sim.pathfinder.navigable_area))
-    print('Bounds=', str(sim.pathfinder.get_bounds()))
+    print("Navmesh area=", sim.pathfinder.navigable_area)
+    bounds = sim.pathfinder.get_bounds()
+    print('Bounds=', bounds)
     # tried the topdown map stuff from the tutorial, but it didn't return anything but Falses
-    
-    # initialize an agent
+
+    # initialize our hierarchical agents
+    midMan = MidManager(args, device)
+    # goalimg = midMan.step(testimg)
+    worker = Worker(args, device)
+    # moves = worker.step(testimg, goalimg)
+
+    # initialize a sim agent to represent the goal
+    goal = sim.initialize_agent(sim_settings["default_agent"])
+    # Set agent state
+    agent_state = habitat_sim.AgentState()
+    # TODO: change this to a random place in the environment bounds as gotten ^^^
+    agent_state.position = np.array([-0.6, 0.0, 0.0])  # in world space
+    breakpoint()
+
+    # initialize a sim agent to move for the hierarchical agents
     agent = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
     agent_state = habitat_sim.AgentState()
     # TODO: change this to a random place in the environment bounds as gotten ^^^
     agent_state.position = np.array([-0.6, 0.0, 0.0])  # in world space
-    agent.set_state(agent_state)
+    # agent.set_state(agent_state)
+    
+    
+    
+    #TODO: generate a random goal image
+    
+    
     
     # Get agent state
-    agent_state = agent.get_state()
-    print("agent_state: position", agent_state.position, "rotation", agent_state.rotation)
+    # agent_state = agent.get_state()
+    # print("agent_state: position", agent_state.position, "rotation", agent_state.rotation)
     # obtain the default, discrete actions that an agent can perform
     # default action space contains 3 actions: move_forward, turn_left, and turn_right
-    action_names = list(habitat_cfg.agents[sim_settings["default_agent"]].action_space.keys())
-    print("Discrete action space: ", action_names)
+    # action_names = list(habitat_cfg.agents[sim_settings["default_agent"]].action_space.keys())
+    # print("Discrete action space: ", action_names)
     
     # execute 10 random actions and view the corresponding frames
     # max_frames = 10
@@ -96,11 +120,11 @@ if __name__ == '__main__':
     #     cv2.waitKey(500)
     
     # get random navigable point and check can navigate to there
-    pathfinder_seed=1
-    sim.pathfinder.seed(pathfinder_seed)
-    nav_point = sim.pathfinder.get_random_navigable_point()
-    print("random point:",nav_point, "is navigable?", sim.pathfinder.is_navigable(nav_point))
-    print("distance to random point:", sim.pathfinder.distance_to_closest_obstacle(nav_point, args.max_search_radius))
+    # pathfinder_seed=1
+    # sim.pathfinder.seed(pathfinder_seed)
+    # nav_point = sim.pathfinder.get_random_navigable_point()
+    # print("random point:",nav_point, "is navigable?", sim.pathfinder.is_navigable(nav_point))
+    # print("distance to random point:", sim.pathfinder.distance_to_closest_obstacle(nav_point, args.max_search_radius))
     
     #get shortest path between 2 points
     print('finished')
