@@ -119,6 +119,7 @@ if __name__ == '__main__':
     print('points:',path_points)
     # plt.plot(path_points[:,0],path_points[:,2])
     # plt.show()
+    sim.close()
 
     ''' BIG BIG NOTE!!! MIGHT HAVE TO CHECK TO SEE IF A COLLISION OCCURRED MANUALLY IN THE CODE!!!'''
     
