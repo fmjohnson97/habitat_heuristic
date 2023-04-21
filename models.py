@@ -91,6 +91,8 @@ class MidManager(object):
     def getPotentialGoal(self, obs, graph=None):
         # superpoint code borrowed from here: https://github.com/magicleap/SuperGluePretrainedNetwork
         breakpoint()
+        if obs.shape[-1]>1:
+            obs = cv2.cvtColor(obs,cv2.COLOR_RGB2GRAY)
         data = {'image0': torch.from_numpy(obs / 255.).float()[None, None].to(self.device)}
         pred = self.superpoint({'image': data['image0']})
         kpts = pred['keypoints'][0]
@@ -107,14 +109,15 @@ class MidManager(object):
             breakpoint()
             #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
             clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=20)
-            clusters = clustering.fit_predict(mkpts)
+            clusters = clustering.fit_predict(mkpts.cpu())
             largest_cluster = max(set(clusters), key=list(clusters).count)
             print('largest cluster:', largest_cluster)
-            # plt.imshow(obs)
-            # for i in range(max(clusters)):
-            #     inds=[clusters==i]
-            #     print(sum(sum(inds)))
-            #     plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
+            plt.imshow(obs)
+            for i in range(max(clusters)):
+                inds=[clusters==i]
+                print(sum(sum(inds)))
+                plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
+            plt.savefig('gibson_superglue_test.png')
             # plt.show()
             points = mkpts[clusters==largest_cluster]
             min_coords = torch.min(points, axis=0)[0].int()
