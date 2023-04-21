@@ -86,6 +86,7 @@ class MidManager(object):
         }
         self.superpoint = SuperPoint(self.superpoint_config).to(device)
         self.device = device
+        self.distance_threshold = args.cluster_dist_thresh
 
     @torch.no_grad()
     def getPotentialGoal(self, obs, graph=None):
@@ -107,7 +108,7 @@ class MidManager(object):
         if graph is None: #or change this to if goal is not found in graph?
             #find portion of image with highest density of dots (for now)
             #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
-            clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=10)
+            clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=self.distance_threshold)
             clusters = clustering.fit_predict(mkpts)
             largest_cluster = max(set(clusters), key=list(clusters).count)
             print('largest cluster:', largest_cluster)

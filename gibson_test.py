@@ -22,13 +22,16 @@ def getArgs():
     parser.add_argument('--match_threshold', type=float, default=0.2, help='SuperGlue match threshold')
     parser.add_argument('--superglue', choices={'indoor', 'outdoor'}, default='indoor', help='SuperGlue weights')
     parser.add_argument('--max_keypoints', type=int, default=1024, help='Maximum number of keypoints detected by Superpoint (\'-1\' keeps all keypoints)')
-    parser.add_argument('--keypoint_threshold', type=float, default=0.005, help='SuperPoint keypoint detector confidence threshold')
+    parser.add_argument('--keypoint_threshold', type=float, default=0.01, help='SuperPoint keypoint detector confidence threshold')
     parser.add_argument('--x_size', type=int, default=640, help='x dimension of the image')
     parser.add_argument('--y_size', type=int, default=480, help='y dimension of the image')
     
     # Habitat arguments
     parser.add_argument('--meters_per_pixel', type=float, default=0.1, help='meters per pixel for topdown pathfinder map')
     parser.add_argument('--max_search_radius', type=float, default=2, help='max search radius for pathfinding distance to a point')
+    
+    # MidManager arguments
+    parser.add_argument('--cluster_dist_thresh', type=float, default=20, help='distance threshold for the agglomorative clustering')
 
     return parser.parse_args()
 
