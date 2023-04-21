@@ -87,6 +87,9 @@ if __name__ == '__main__':
         goal_position = np.array([random.uniform(bounds[0][0], bounds[1][0]), sim_settings['sensor_height'], random.uniform(bounds[0][2], bounds[1][2])])
     # TODO: change this to a random place in the environment bounds as gotten ^^^
     agent_state.position = goal_position  # in world space
+    obs = sim.step(action)
+    rgb = obs['color_sensor']
+    depth = obs['depth_sensor']
     breakpoint()
 
     # initialize a sim agent to move for the hierarchical agents
