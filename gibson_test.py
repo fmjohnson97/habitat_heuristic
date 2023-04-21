@@ -86,7 +86,7 @@ if __name__ == '__main__':
     goal_position[1] = sim_settings['sensor_height']
     # TODO: change this to a random place in the environment bounds as gotten ^^^
     agent_state.position = goal_position  # in world space
-    obs = sim.step('')
+    obs = sim.step('stop')
     rgb = obs['color_sensor']
     depth = obs['depth_sensor']
     breakpoint()
