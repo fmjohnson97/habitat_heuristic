@@ -105,6 +105,12 @@ class MidManager(object):
         mkpts = kpts[valid]
         mkpts = mkpts.cpu()
         
+        # TODO: check to see if matching features between real goal and current obs
+        # and if so, pick subgoal from features that overlap
+        
+        # TODO: if no goal features, can A) pick largest cluster of points and go there? B) pick furthest away set of 
+        # points and go there? not quite sure actually
+        
         if graph is None: #or change this to if goal is not found in graph?
             #find portion of image with highest density of dots (for now)
             #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
@@ -112,13 +118,12 @@ class MidManager(object):
             clusters = clustering.fit_predict(mkpts)
             largest_cluster = max(set(clusters), key=list(clusters).count)
             print('largest cluster:', largest_cluster)
-            plt.imshow(obs)
-            for i in range(max(clusters)):
-                inds=[clusters==i]
-                print(sum(sum(inds)))
-                plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
-            plt.savefig('gibson_superglue_test.png')
-            breakpoint()
+            # plt.imshow(obs)
+            # for i in range(max(clusters)):
+            #     inds=[clusters==i]
+            #     print(sum(sum(inds)))
+            #     plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
+            # plt.savefig('gibson_superglue_test.png')
             # plt.show()
             points = mkpts[clusters==largest_cluster]
             min_coords = torch.min(points, axis=0)[0].int()
