@@ -81,23 +81,30 @@ if __name__ == '__main__':
     # initialize a sim agent to represent the goal
     goal = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
-    agent_state = habitat_sim.AgentState()
+    goal_state = habitat_sim.AgentState()
     goal_position = sim.pathfinder.get_random_navigable_point()
     goal_position[1] = sim_settings['sensor_height']
-    # TODO: change this to a random place in the environment bounds as gotten ^^^
-    agent_state.position = goal_position  # in world space
+    goal_state.position = goal_position  # in world space
     obs = sim.step('turn_left')
-    rgb = obs['color_sensor']
-    depth = obs['depth_sensor']
+    goal_image = obs['color_sensor']
+    goal_depth = obs['depth_sensor']
     breakpoint()
 
     # initialize a sim agent to move for the hierarchical agents
     agent = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
     agent_state = habitat_sim.AgentState()
-    # TODO: change this to a random place in the environment bounds as gotten ^^^
-    agent_state.position = np.array([-0.6, 0.0, 0.0])  # in world space
-    # agent.set_state(agent_state)
+    agent_position = sim.pathfinder.get_random_navigable_point()
+    # TODO: put these in when it's actual test time that way we can guarantee they're not on top of each other
+    # while abs(goal_position[0]-agent_position[0])<1 or abs(goal_position[2]-agent_position[2])<1:
+    #     agent_position = sim.pathfinder.get_random_navigable_point()
+    goal_position[1] = sim_settings['sensor_height']
+    goal_state.position = goal_position  # in world space
+    breakpoint()
+    agent.set_state(agent_state)
+    obs = sim.step('turn_left')
+    goal_image = obs['color_sensor']
+    goal_depth = obs['depth_sensor']
     
     
     
