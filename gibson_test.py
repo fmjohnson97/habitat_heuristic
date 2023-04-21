@@ -85,10 +85,10 @@ if __name__ == '__main__':
     goal_position = sim.pathfinder.get_random_navigable_point()
     goal_position[1] = sim_settings['sensor_height']
     goal_state.position = goal_position  # in world space
+    goal.set_state(goal_state)
     obs = sim.step('turn_left')
     goal_image = obs['color_sensor']
     goal_depth = obs['depth_sensor']
-    breakpoint()
 
     # initialize a sim agent to move for the hierarchical agents
     agent = sim.initialize_agent(sim_settings["default_agent"])
@@ -100,11 +100,20 @@ if __name__ == '__main__':
     #     agent_position = sim.pathfinder.get_random_navigable_point()
     goal_position[1] = sim_settings['sensor_height']
     goal_state.position = goal_position  # in world space
-    breakpoint()
     agent.set_state(agent_state)
     obs = sim.step('turn_left')
-    goal_image = obs['color_sensor']
-    goal_depth = obs['depth_sensor']
+    obs_rgb = obs['color_sensor']
+    obs_depth = obs['depth_sensor']
+    
+    #get subgoal image from middle manager
+    subgoalimg = midMan.step(obs_rgb)
+    moves = []
+    while moves != ['stop']:
+        moves = worker.step(obs_rgb, subgoalimg)
+        print(moves)
+        for action in moves:
+            obs = sim.step(action)
+        obs_rgb = obs['color_sensor']
     
     
     

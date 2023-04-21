@@ -94,15 +94,16 @@ class MidManager(object):
         pred = self.superpoint({'image': data['image0']})
         kpts = pred['keypoints'][0]
         scores = pred['scores'][0]
-        descripts = pred['descriptors'][0]
+        # descripts = pred['descriptors'][0]
 
         #only take the ones with scores above the mean; scores tell how "point-ish" a keypoint is
         avg = torch.mean(scores)
         valid = scores>avg
         mkpts = kpts[valid]
-
+        
         if graph is None: #or change this to if goal is not found in graph?
             #find portion of image with highest density of dots (for now)
+            breakpoint()
             #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
             clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=20)
             clusters = clustering.fit_predict(mkpts)
