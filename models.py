@@ -99,9 +99,9 @@ class MidManager(object):
         # descripts = pred['descriptors'][0]
 
         #only take the ones with scores above the mean; scores tell how "point-ish" a keypoint is
-        # avg = torch.mean(scores)
-        # valid = scores>avg
-        mkpts = kpts#[valid]
+        avg = torch.mean(scores)
+        valid = scores>avg
+        mkpts = kpts[valid]
         mkpts = mkpts.cpu()
         
         if graph is None: #or change this to if goal is not found in graph?
