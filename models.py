@@ -34,7 +34,8 @@ class Worker(object):
         # superglue code borrowed from here: https://github.com/magicleap/SuperGluePretrainedNetwork
         # get superglue to find salient points in obs and goal and match them
         #TODO: may need to resize the image to 480x640?
-        # data = {'image0':torch.tensor([obs]).byte().unsqueeze(1).to(self.device), 'image1':torch.ByteTensor([goal]).byte().unsqueeze(1).to(self.device)}
+        if obs.shape[-1]>1:
+            obs = cv2.cvtColor(obs,cv2.COLOR_RGB2GRAY)
         data = {'image0':torch.from_numpy(obs/255.).float()[None, None].to(self.device),
                 'image1':torch.from_numpy(goal/255.).float()[None, None].to(self.device)}
         pred = self.superglue(data)
@@ -140,6 +141,17 @@ class MidManager(object):
     def step(self, obs):
         goalimg = self.getPotentialGoal(obs)
         return goalimg
+
+class Manager(object):
+    def __init__(self, args, device, graph):
+        self.device = device
+        if type(graph)==str:
+            pass
+            # TODO: read graph files
+        else:
+            self.graph = graph
+
+    def
 
 if __name__ == '__main__':
     args = getArgs()

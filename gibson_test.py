@@ -111,12 +111,15 @@ if __name__ == '__main__':
     #get subgoal image from middle manager
     subgoalimg = midMan.step(obs_rgb)
     moves = []
-    while moves != ['stop']:
+    while 'stop' not in moves:
         moves = worker.step(obs_rgb, subgoalimg)
         print(moves)
         for action in moves:
-            obs = sim.step(action)
+            if action!='stop':
+                obs = sim.step(action)
         obs_rgb = obs['color_sensor']
+        cv2.imshow('', obs_rgb)
+        cv2.waitKey(500)
     
     
     
