@@ -90,7 +90,6 @@ class MidManager(object):
     @torch.no_grad()
     def getPotentialGoal(self, obs, graph=None):
         # superpoint code borrowed from here: https://github.com/magicleap/SuperGluePretrainedNetwork
-        breakpoint()
         if obs.shape[-1]>1:
             obs = cv2.cvtColor(obs,cv2.COLOR_RGB2GRAY)
         data = {'image0': torch.from_numpy(obs / 255.).float()[None, None].to(self.device)}
@@ -103,13 +102,13 @@ class MidManager(object):
         avg = torch.mean(scores)
         valid = scores>avg
         mkpts = kpts[valid]
+        mkpts = mkpts.cpu()
         
         if graph is None: #or change this to if goal is not found in graph?
             #find portion of image with highest density of dots (for now)
-            breakpoint()
             #TODO: arbitrarily picked 20 to best fit the test case; maybe should change that???
-            clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=20)
-            clusters = clustering.fit_predict(mkpts.cpu())
+            clustering = AgglomerativeClustering(None, linkage='single', distance_threshold=10)
+            clusters = clustering.fit_predict(mkpts)
             largest_cluster = max(set(clusters), key=list(clusters).count)
             print('largest cluster:', largest_cluster)
             plt.imshow(obs)
@@ -118,6 +117,7 @@ class MidManager(object):
                 print(sum(sum(inds)))
                 plt.scatter(mkpts[inds[0],0], mkpts[inds[0],1])
             plt.savefig('gibson_superglue_test.png')
+            breakpoint()
             # plt.show()
             points = mkpts[clusters==largest_cluster]
             min_coords = torch.min(points, axis=0)[0].int()
