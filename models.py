@@ -90,6 +90,7 @@ class MidManager(object):
     @torch.no_grad()
     def getPotentialGoal(self, obs, graph=None):
         # superpoint code borrowed from here: https://github.com/magicleap/SuperGluePretrainedNetwork
+        breakpoint()
         data = {'image0': torch.from_numpy(obs / 255.).float()[None, None].to(self.device)}
         pred = self.superpoint({'image': data['image0']})
         kpts = pred['keypoints'][0]
