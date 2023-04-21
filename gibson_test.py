@@ -82,11 +82,8 @@ if __name__ == '__main__':
     goal = sim.initialize_agent(sim_settings["default_agent"])
     # Set agent state
     agent_state = habitat_sim.AgentState()
-    goal_position = np.array([random.uniform(bounds[0][0], bounds[1][0]), sim_settings['sensor_height'], random.uniform(bounds[0][2], bounds[1][2])])
-    # while not sim.pathfinder.is_navigable(goal_position):
-    #     goal_position = np.array([random.uniform(bounds[0][0], bounds[1][0]), sim_settings['sensor_height'], random.uniform(bounds[0][2], bounds[1][2])])
-    if not sim.pathfinder.is_navigable(goal_position):
-        breakpoint()
+    goal_position = sim.pathfinder.get_random_navigable_point()
+    goal_position[1] = sim_settings['sensor_height']
     # TODO: change this to a random place in the environment bounds as gotten ^^^
     agent_state.position = goal_position  # in world space
     obs = sim.step(action)
