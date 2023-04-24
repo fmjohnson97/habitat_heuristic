@@ -1,38 +1,36 @@
-import cv2
+import habitat_sim
+import numpy as np
 
-class Graph():
-    def __init__(self):
-        self.nodes = []
-        self.edges = []
-        self.current_location = 0
-        self.goal_location = None
-
-    def addNode(self, img_path, location, orientation):
-        node = Node(img_path, location, orientation)
-        self.nodes.append(node)
-        self.updateEdges()
-
-    def updateEdges(self):
-        if len(self.edges[0])!= len(self.nodes):
-            for i in range(len(self.edges)):
-                self.edges[i].append(0)
-            self.edges.append([0]*len(self.nodes))
-            if len(self.nodes)>1:
-                self.edges[-1][-2]=1
-                self.edges[-2][-1]=1
-
-        #TODO: is there some smarter way to make these graphs more connected?
+DIFFICULTY_THRESHOLDS = {None: [-np.inf, np.inf],
+                         'easy': [1.5, 3],
+                         'medium': [3, 5],
+                         'hard': [5, 10]}
 
 
+def getShortestPath(sim, start=None, end=None):
+    if start is None:
+        start = sim.pathfinder.get_random_navigable_point()
+    if end is None:
+        end = sim.pathfinder.get_random_navigable_point()
+
+    path = habitat_sim.ShortestPath()
+    path.requested_start = start
+    path.requested_end = end
+    found_path = sim.pathfinder.find_path(path)
+    if found_path:
+        return {'path': np.stack(path.points),
+                'distance': path.geodesic_distance,
+                'start': start,
+                'end': end}
+    else:
+        return {'path': None,
+                'distance': np.inf,
+                'start': start,
+                'end': end}
 
 
-def Node():
-    def __init__(self, img_path, location, orientation):
-        self.img_path = img_path
-        self.location = location
-        # the orientation of the robot when the image was taken
-        self.orientation = orientation
-
-    def getImage(self):
-        return cv2.cvtColor(cv2.imread(self.img_path),cv2.COLOR_BGR2RGB)
-
+def generateTrajectoryGraph(sim, difficulty=None):
+    diff_thresh = DIFFICULTY_THRESHOLDS[difficulty]
+    path_data = getShortestPath(sim)
+    while path_data['path'] is None:
+        path_data = getShortestPath(sim)
