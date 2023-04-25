@@ -1,5 +1,7 @@
 import json
 import habitat_sim
+import os
+import cv2
 
 from typing import Any, Dict
 from glob import glob
@@ -25,6 +27,16 @@ def get_split_files(split='test',env='gibson'):
         breakpoint()
 
     return env_file_list
+
+def saveOBS(obs,folder_path):
+    rgb=obs['color_sensor']
+    depth=obs['depth_sensor']
+    breakpoint()
+    #TODO: is there something in obs that will help label these to save them? should save with the location as the name
+    cv2.imwrite(rgb, folder_path+'.png')
+    cv2.imwrite(depth, folder_path + '.png')
+    return [folder_path+'.png', folder_path+'.png'] #returning names so can add to nodes
+
 
 # build SimulatorConfiguration
 def make_cfg(settings: Dict[str, Any]):

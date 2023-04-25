@@ -2,6 +2,7 @@ import habitat_sim
 import numpy as np
 
 from graph import Graph
+from habitat_utils import saveOBS
 
 DIFFICULTY_THRESHOLDS = {None: [-np.inf, np.inf],
                          'easy': [1.5, 3],
@@ -27,10 +28,11 @@ def computeTurnAction(start_loc, end_loc, base_angle=15):
     return []
 
 
-def generateTrajectoryGraph(sim, difficulty=None):
+def generateTrajectoryGraph(sim, sim_settings, difficulty=None):
     diff_thresh = DIFFICULTY_THRESHOLDS[difficulty]
     path_data = getShortestPath(sim)
     counter = 0
+    breakpoint()
     while path_data['path'] is None or path_data['distance'] < diff_thresh[0] or path_data['distance'] > diff_thresh[1]:
         path_data = getShortestPath(sim)
         counter += 1
@@ -38,12 +40,34 @@ def generateTrajectoryGraph(sim, difficulty=None):
             print('Generate Trajectory Graph timed out with path generation')
             exit(-1)
 
+    breakpoint()
+    #TODO: make folder path variable based on the env name and difficulty
+    folder_path = None
+
     trajGraph = Graph()
     actions = getActionsForPath(path_data['path'])
+
+    agent = sim.initialize_agent(sim_settings["default_agent"])
+    agent_state = habitat_sim.AgentState()
+    agent_state.position = np.array([path_data['start'][0], sim_settings['sensor_height'], path_data['start'][2]])
+    agent.set_state(agent_state)
+    agent_state = agent.get_state()
+    agent_loc = agent_state.position
+    agent_orient =  agent_state.rotation
+
     start_obs = sim.step('stop')
+    img_names=saveOBS(start_obs,folder_path)
+    trajGraph.addNode(img_names[0], path_data['start'], agent_orient, img_names[1])
 
     for act in actions:
-
+        #TODO: do we have to physically move the agent or does it move on its own with sim.step???
+        obs = sim.step(act)
+        if 'forward' in act:
+            breakpoint()
+            img_names = saveOBS(obs, folder_path)
+            location = None
+            orientation = None
+            trajGraph.addNode(img_names[0], location, orientation, img_names[1])
 
 
 def getActionsForPath(path):

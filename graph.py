@@ -49,6 +49,12 @@ class Node():
         else:
             return None
 
+    def getDepth(self):
+        if self.depth_path:
+            return cv2.imread(self.depth_path) #TODO: might have to cast this as grayscale??? bc single value?
+        else:
+            return None
+
     def getSaveDict(self):
         return {'img_path': self.img_path,
                 'depth_path': self.depth_path,
