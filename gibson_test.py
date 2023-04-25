@@ -7,6 +7,7 @@ import torch
 
 from habitat_utils import get_split_files, make_cfg
 from models import Worker, MidManager
+from graph_utils import generateTrajectoryGraph
 
 
 def getArgs():
@@ -71,6 +72,10 @@ if __name__ == '__main__':
                     "enable_physics": False}
     habitat_cfg = make_cfg(sim_settings)
     sim = habitat_sim.Simulator(habitat_cfg)
+
+    #TODO: try to read traj graph; else do this
+    generateTrajectoryGraph(sim, sim_settings, difficulty=None)
+
     # get sim area stats and topdown map
     print("Navmesh area=", sim.pathfinder.navigable_area)
     bounds = sim.pathfinder.get_bounds()
