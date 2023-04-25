@@ -5,9 +5,9 @@ import cv2
 import habitat_sim
 import torch
 
+from graph_utils import generateTrajectoryGraph
 from habitat_utils import get_split_files, make_cfg
 from models import Worker, MidManager
-from graph_utils import generateTrajectoryGraph
 
 
 def getArgs():
@@ -73,7 +73,9 @@ if __name__ == '__main__':
     habitat_cfg = make_cfg(sim_settings)
     sim = habitat_sim.Simulator(habitat_cfg)
 
-    #TODO: try to read traj graph; else do this
+    # TODO: the stop action doesn't actually work!!!! figure out how to fix?
+
+    # TODO: try to read traj graph; else do this
     generateTrajectoryGraph(sim, sim_settings, difficulty=None)
 
     # get sim area stats and topdown map
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     # Set agent state
     agent_state = habitat_sim.AgentState()
     agent_position = sim.pathfinder.get_random_navigable_point()
-    # TODO: put these in when it's actual test time that way we can guarantee they're not on top of each other
+    # TODO: put these in when it's actual test time that way we can guarantee they're not on top of each other??? does it automatically handle collisions???
     # while abs(goal_position[0]-agent_position[0])<1 or abs(goal_position[2]-agent_position[2])<1:
     #     agent_position = sim.pathfinder.get_random_navigable_point()
     goal_position[1] = sim_settings['sensor_height']
@@ -135,6 +137,7 @@ if __name__ == '__main__':
     # print("agent_state: position", agent_state.position, "rotation", agent_state.rotation)
     # obtain the default, discrete actions that an agent can perform
     # default action space contains 3 actions: move_forward, turn_left, and turn_right
+    # breakpoint()
     # action_names = list(habitat_cfg.agents[sim_settings["default_agent"]].action_space.keys())
     # print("Discrete action space: ", action_names)
 

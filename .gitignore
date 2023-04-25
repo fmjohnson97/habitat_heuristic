@@ -8,3 +8,5 @@ __pycache__/*
 .idea/*
 .DS_*
 *.png
+test_env_graphs/
+test_env_graphs/*

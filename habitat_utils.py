@@ -1,14 +1,14 @@
 import json
-import habitat_sim
-import os
-import cv2
-
-from typing import Any, Dict
-from glob import glob
 from collections import defaultdict
+from glob import glob
+from typing import Any, Dict
 
-def get_split_files(split='test',env='gibson'):
-    dirs = glob('/home/faith/GitRepos/habitat/'+env.lower()+'_test_splits/*/*.json')
+import cv2
+import habitat_sim
+
+
+def get_split_files(split='test', env='gibson'):
+    dirs = glob('/home/faith/GitRepos/habitat/' + env.lower() + '_test_splits/*/*.json')
     env_file_list = defaultdict(list)
     for d in dirs:
         with open(d) as f:
@@ -17,25 +17,28 @@ def get_split_files(split='test',env='gibson'):
         for e in files['episodes']:
             env_file_list[key].append(e['scene_id'].split('/')[-1])
 
-    temp=[]
+    temp = []
     for key in env_file_list.keys():
-        env_file_list[key]=set(env_file_list[key])
+        env_file_list[key] = set(env_file_list[key])
         temp.extend(env_file_list[key])
-    env_file_list['all']=set(temp)
+    env_file_list['all'] = set(temp)
 
-    if split=='train':
+    if split == 'train':
         breakpoint()
 
     return env_file_list
 
-def saveOBS(obs,folder_path):
-    rgb=obs['color_sensor']
-    depth=obs['depth_sensor']
-    breakpoint()
-    #TODO: is there something in obs that will help label these to save them? should save with the location as the name
-    cv2.imwrite(rgb, folder_path+'.png')
-    cv2.imwrite(depth, folder_path + '.png')
-    return [folder_path+'.png', folder_path+'.png'] #returning names so can add to nodes
+
+def saveOBS(obs, folder_path, location):
+    rgb = obs['color_sensor']
+    depth = obs['depth_sensor']
+    # TODO: is there something in obs that will help label these to save them? should save with the location as the name
+    location_string = '_'.join([str(round(x, 2)) for x in location])
+    rgb_path = folder_path + 'rgb_' + location_string + '.png'
+    depth_path = folder_path + 'depth_' + location_string + '.png'
+    cv2.imwrite(rgb_path, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(depth_path, depth)
+    return [rgb_path, depth_path]  # returning names so can add to nodes
 
 
 # build SimulatorConfiguration
@@ -218,6 +221,9 @@ def make_cfg(settings: Dict[str, Any]):
     agent_cfg = habitat_sim.agent.AgentConfiguration()
     agent_cfg.sensor_specifications = sensor_specs
     agent_cfg.action_space = {
+        "stop": habitat_sim.agent.ActionSpec(
+            "stop"
+        ),
         "move_forward": habitat_sim.agent.ActionSpec(
             "move_forward", habitat_sim.agent.ActuationSpec(amount=0.25)
         ),
@@ -226,7 +232,7 @@ def make_cfg(settings: Dict[str, Any]):
         ),
         "turn_right": habitat_sim.agent.ActionSpec(
             "turn_right", habitat_sim.agent.ActuationSpec(amount=15.0)
-        ), #TODO: add noisy actions here???
+        ),  # TODO: add noisy actions here???
     }
 
     return habitat_sim.Configuration(sim_cfg, [agent_cfg])
