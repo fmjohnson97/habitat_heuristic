@@ -4,9 +4,8 @@ import random
 import cv2
 import habitat_sim
 import torch
-from habitat_sim.utils.settings import make_cfg
 
-from habitat_utils import get_split_files
+from habitat_utils import get_split_files, make_cfg
 from models import Worker, MidManager
 
 

@@ -1,16 +1,17 @@
 import cv2
-
+import json
 
 class Graph():
-    def __init__(self):
+    def __init__(self, goal_location=None):
         self.nodes = []
         self.edges = []
-        self.current_location = 0
-        self.goal_location = None
+        self.current_node = 0
+        self.goal_location = goal_location
 
-    def addNode(self, img_path, location, orientation):
-        node = Node(img_path, location, orientation)
+    def addNode(self, img_path, location, orientation, depth_path=None):
+        node = Node(img_path, location, orientation, depth_path)
         self.nodes.append(node)
+        self.current_node = len(self.nodes)-1
         self.updateEdges()
 
     def updateEdges(self):
@@ -24,10 +25,20 @@ class Graph():
 
         # TODO: is there some smarter way to make these graphs more connected?
 
+    def save(self, save_path):
+        data = {}
+        for i,node in enumerate(self.nodes):
+            data['node'+str(i)]=node.getSaveDict()
+        data['edges']=self.edges
+        data['goal_location']=self.goal_location
+
+        json.dump(data, save_path)
+
 
 class Node():
-    def __init__(self, img_path, location, orientation):
+    def __init__(self, img_path, location, orientation=None, depth_path=None):
         self.img_path = img_path
+        self.depth_path = depth_path
         self.location = location
         # the orientation of the robot when the image was taken
         self.orientation = orientation
@@ -37,3 +48,9 @@ class Node():
             return cv2.cvtColor(cv2.imread(self.img_path), cv2.COLOR_BGR2RGB)
         else:
             return None
+
+    def getSaveDict(self):
+        return {'img_path': self.img_path,
+                'depth_path': self.depth_path,
+                'location': self.location,
+                'orientation': self.orientation}
