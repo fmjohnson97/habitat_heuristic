@@ -34,6 +34,7 @@ class Graph():
             data['node' + str(i)] = node.getSaveDict()
         data['edges'] = self.edges
         data['goal_location'] = self.goal_location
+        data['start_location'] = self.nodes[0].location
         with open(save_path, 'w') as f:
             json.dump(data, f)
 

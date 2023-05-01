@@ -76,7 +76,10 @@ if __name__ == '__main__':
     # TODO: the stop action doesn't actually work!!!! figure out how to fix?
 
     # TODO: try to read traj graph; else do this
-    generateTrajectoryGraph(sim, sim_settings, difficulty=None)
+    # breakpoint()
+    # TODO: make master file of all envs with start/stop positions so we can make sure all test
+    # scenes are different
+    trajGraph = generateTrajectoryGraph(sim, sim_settings, difficulty=None, save=False)
 
     # get sim area stats and topdown map
     print("Navmesh area=", sim.pathfinder.navigable_area)
