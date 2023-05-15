@@ -101,8 +101,6 @@ def generateTrajectoryGraph(sim, sim_settings, difficulty=None, save=False):
             if 'forward' in act:
                 img_names = saveOBS(obs, folder_path, agent_location)
                 trajGraph.addNode(img_names[0], agent_loc, agent_orient, img_names[1])
-            # TODO: get rid of print when we're happy with this
-            print(((agent_loc[0] - path_data['end'][0]) ** 2 + (agent_loc[2] - path_data['end'][2]) ** 2) ** 0.5)
             if ((agent_loc[0] - path_data['end'][0]) ** 2 + (agent_loc[2] - path_data['end'][2]) ** 2) ** 0.5 <= \
                     1 * agent.agent_config.action_space['move_forward'].actuation.amount:
                 end_act_ind = i
@@ -114,8 +112,7 @@ def generateTrajectoryGraph(sim, sim_settings, difficulty=None, save=False):
     # should make a case where that's true sometimes and add more images/actions to the graph
     # ie. just change the rgb/depth images associated with the last node/goal node
 
-    breakpoint()  # TODO: check that it actually reaches the goal
-    # TODO: check that the end point/goal point is actually the end of path
+    breakpoint()
     if save:
         trajGraph.save(folder_path + 'trajGraph.json')
 
